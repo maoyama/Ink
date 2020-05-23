@@ -4,6 +4,8 @@
 *  MIT license, see LICENSE file for details
 */
 
+import SwiftUI
+
 ///
 /// A parser used to convert Markdown text into HTML.
 ///
@@ -35,6 +37,64 @@ public struct MarkdownParser {
     public func html(from markdown: String) -> String {
         parse(markdown).html
     }
+
+    public func view(from markdown: String) -> some View {
+        var reader = Reader(string: markdown)
+        var fragments = [ParsedFragment]()
+        var urlsByName = [String : URL]()
+        var titleHeading: Heading?
+        var metadata: Metadata?
+
+        while !reader.didReachEnd {
+            reader.discardWhitespacesAndNewlines()
+            guard !reader.didReachEnd else { break }
+
+            do {
+                if metadata == nil, fragments.isEmpty, reader.currentCharacter == "-" {
+                    if let parsedMetadata = try? Metadata.readOrRewind(using: &reader) {
+                        metadata = parsedMetadata.applyingModifiers(modifiers)
+                        continue
+                    }
+                }
+
+                guard reader.currentCharacter != "[" else {
+                    let declaration = try URLDeclaration.readOrRewind(using: &reader)
+                    urlsByName[declaration.name] = declaration.url
+                    continue
+                }
+
+                let type = fragmentType(for: reader.currentCharacter,
+                                        nextCharacter: reader.nextCharacter)
+
+                let fragment = try makeFragment(using: type.readOrRewind, reader: &reader)
+                fragments.append(fragment)
+
+                if titleHeading == nil, let heading = fragment.fragment as? Heading {
+                    if heading.level == 1 {
+                        titleHeading = heading
+                    }
+                }
+            } catch {
+                let paragraph = makeFragment(using: Paragraph.read, reader: &reader)
+                fragments.append(paragraph)
+            }
+        }
+
+        let urls = NamedURLCollection(urlsByName: urlsByName)
+
+        let fragmentViews: [(id: UUID, view: AnyView)] = fragments.map { (parsed) -> (id: UUID, view: AnyView) in
+            let view = parsed.fragment.view(usingURLs: urls, rawString: parsed.rawString)
+            let id = UUID()
+            return (id: id, view: view)
+        }
+
+        return VStack {
+            ForEach(fragmentViews, id: \.id) { fragment in
+                fragment.view
+            }
+        }
+    }
+
 
     /// Parse a Markdown string into a `Markdown` value, which contains
     /// both the HTML representation of the given string, and also any
