@@ -88,7 +88,7 @@ public struct MarkdownParser {
             return (id: id, view: view)
         }
 
-        return VStack {
+        return VStack(alignment: .leading) {
             ForEach(fragmentViews, id: \.id) { fragment in
                 fragment.view
             }
