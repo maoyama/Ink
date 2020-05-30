@@ -3,6 +3,7 @@
 *  Copyright (c) John Sundell 2019
 *  MIT license, see LICENSE file for details
 */
+import SwiftUI
 
 internal struct Image: Fragment {
     var modifierTarget: Modifier.Target { .images }
@@ -29,4 +30,10 @@ internal struct Image: Fragment {
     func plainText() -> String {
         link.plainText()
     }
+
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker) -> AnyView {
+        let url = link.target.url(from: urls)
+        return viewMaker.image(url)
+    }
+
 }

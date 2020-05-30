@@ -3,6 +3,7 @@
 *  Copyright (c) John Sundell 2019
 *  MIT license, see LICENSE file for details
 */
+import SwiftUI
 
 internal struct Paragraph: Fragment {
     var modifierTarget: Modifier.Target { .paragraphs }
@@ -21,5 +22,9 @@ internal struct Paragraph: Fragment {
 
     func plainText() -> String {
         text.plainText()
+    }
+
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker) -> AnyView {
+        return text.view(usingURLs: urls, rawString: rawString, viewMaker: viewMaker)
     }
 }

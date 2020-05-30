@@ -18,11 +18,19 @@ import SwiftUI
 /// a `Modifier` using the `addModifier` method.
 public struct MarkdownParser {
     private var modifiers: ModifierCollection
-
+    private var viewMaker: ViewMaker
     /// Initialize an instance, optionally passing an array
     /// of modifiers used to customize the parsing process.
     public init(modifiers: [Modifier] = []) {
         self.modifiers = ModifierCollection(modifiers: modifiers)
+        self.viewMaker = ViewMaker(image: { (url) -> AnyView in
+            AnyView(Text(url))
+        })
+    }
+
+    public init(viewMaker: ViewMaker) {
+        self.modifiers = ModifierCollection(modifiers: [])
+        self.viewMaker = viewMaker
     }
 
     /// Add a modifier to this parser, which can be used to
@@ -83,7 +91,7 @@ public struct MarkdownParser {
         let urls = NamedURLCollection(urlsByName: urlsByName)
 
         let fragmentViews: [(id: UUID, view: AnyView)] = fragments.map { (parsed) -> (id: UUID, view: AnyView) in
-            let view = parsed.fragment.view(usingURLs: urls, rawString: parsed.rawString)
+            let view = parsed.fragment.view(usingURLs: urls, rawString: parsed.rawString, viewMaker: viewMaker)
             let id = UUID()
             return (id: id, view: view)
         }
