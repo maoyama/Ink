@@ -10,4 +10,8 @@ import SwiftUI
 
 public struct ViewMaker {
     var image: (URL) -> AnyView
+
+    public init(image: @escaping (Substring) -> AnyView) {
+        self.image = image
+    }
 }
