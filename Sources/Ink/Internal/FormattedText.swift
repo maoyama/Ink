@@ -49,7 +49,7 @@ internal struct FormattedText: Readable, HTMLConvertible, PlainTextConvertible {
         }
     }
 
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker) -> AnyView {
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> AnyView {
         let comViews = components.map { (com) -> Any in
             switch com {
             case .linebreak:
@@ -59,7 +59,7 @@ internal struct FormattedText: Readable, HTMLConvertible, PlainTextConvertible {
             case .styleMarker(let marker):
                 return Text(marker.rawMarkers)
             case .fragment(let fragment, rawString: let rawStr):
-                return fragment.view(usingURLs: urls, rawString: rawStr, viewMaker: viewMaker)
+                return fragment.view(usingURLs: urls, rawString: rawStr, viewMaker: viewMaker, viewModifier: viewModifier)
             }
         }
         let views = comViews.reduce(into: []) { (views, comView) in

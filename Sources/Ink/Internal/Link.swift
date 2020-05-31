@@ -3,6 +3,7 @@
 *  Copyright (c) John Sundell 2019
 *  MIT license, see LICENSE file for details
 */
+import SwiftUI
 
 internal struct Link: Fragment {
     var modifierTarget: Modifier.Target { .links }
@@ -37,6 +38,12 @@ internal struct Link: Fragment {
 
     func plainText() -> String {
         text.plainText()
+    }
+
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> AnyView {
+        let url = target.url(from: urls)
+        let view = text.view(usingURLs: urls, rawString: rawString, viewMaker: viewMaker, viewModifier: viewModifier)
+        return viewModifier.link((url: url, view: view))
     }
 }
 
