@@ -49,40 +49,19 @@ internal struct FormattedText: Readable, HTMLConvertible, PlainTextConvertible {
         }
     }
 
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> AnyView {
-        let comViews = components.map { (com) -> Any in
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> [ViewType] {
+        return Array(components.map { (com) -> [ViewType] in
             switch com {
             case .linebreak:
-                return Text("\n")
+                return [.text(Text("\n"))]
             case .text(let text):
-                return Text(text)
+                return [.text(Text(text))]
             case .styleMarker(let marker):
-                return Text(marker.rawMarkers)
+                return [.text(Text(marker.rawMarkers))]
             case .fragment(let fragment, rawString: let rawStr):
                 return fragment.view(usingURLs: urls, rawString: rawStr, viewMaker: viewMaker, viewModifier: viewModifier)
             }
-        }
-        let views = comViews.reduce(into: []) { (views, comView) in
-            if let lastText = views.last as? Text, let text = comView as? Text {
-                views = views.dropLast()
-                views.append(lastText + text)
-                return
-            }
-            views.append(comView)
-        }
-        let anyViewWithIDs = views.map { (view) -> (id: UUID, view: AnyView) in
-            if let text = view as? Text {
-                return (id: UUID(), view: AnyView(text))
-            }
-            return (id: UUID(), view: view as! AnyView)
-        }
-        return AnyView(
-            VStack(alignment: .leading) {
-                ForEach(anyViewWithIDs, id: \.id) { anyViewWithID in
-                    anyViewWithID.view
-                }
-            }
-        )
+        }.joined())
     }
 
 

@@ -9,9 +9,11 @@ import Foundation
 import SwiftUI
 
 public struct ViewModifier {
-    var link: ((url: Substring, view: AnyView)) -> AnyView
+    var textLink: ((url: Substring, text: Text)) -> Text
+    var anyViewLink: ((url: Substring, anyView: AnyView)) -> AnyView
 
-    public init(link: @escaping ((url: Substring, view: AnyView)) -> AnyView) {
-        self.link = link
+    public init(textLink: @escaping ((url: Substring, text: Text)) -> Text, anyViewLink: @escaping ((url: Substring, anyView: AnyView)) -> AnyView) {
+        self.textLink = textLink
+        self.anyViewLink = anyViewLink
     }
 }

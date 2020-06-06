@@ -19,16 +19,13 @@ import SwiftUI
 public struct MarkdownParser {
     private var modifiers: ModifierCollection
     private var viewMaker: ViewMaker
-    private var viewModifier: ViewModifier
+    private var viewModifier: ViewModifier!
     /// Initialize an instance, optionally passing an array
     /// of modifiers used to customize the parsing process.
     public init(modifiers: [Modifier] = []) {
         self.modifiers = ModifierCollection(modifiers: modifiers)
         self.viewMaker = ViewMaker(image: { (url) -> AnyView in
             AnyView(Text(url))
-        })
-        self.viewModifier = ViewModifier(link: { (view) -> AnyView in
-            view.view
         })
     }
 
@@ -95,15 +92,18 @@ public struct MarkdownParser {
 
         let urls = NamedURLCollection(urlsByName: urlsByName)
 
-        let fragmentViews: [(id: UUID, view: AnyView)] = fragments.map { (parsed) -> (id: UUID, view: AnyView) in
-            let view = parsed.fragment.view(usingURLs: urls, rawString: parsed.rawString, viewMaker: viewMaker, viewModifier: viewModifier)
+        let fragmentViews: [ViewType] = Array(fragments.map { (parsed) -> [ViewType] in
+            return parsed.fragment.view(usingURLs: urls, rawString: parsed.rawString, viewMaker: viewMaker, viewModifier: viewModifier)
+            }.joined()).joinText()
+
+        let fragmentViewsWithID: [(id: UUID, view: ViewType)] = fragmentViews.map { (view) -> (id: UUID, view: ViewType) in
             let id = UUID()
             return (id: id, view: view)
         }
 
         return VStack(alignment: .leading) {
-            ForEach(fragmentViews, id: \.id) { fragment in
-                fragment.view
+            ForEach(fragmentViewsWithID, id: \.id) { fragment in
+                fragment.view.any()
             }
         }
     }
