@@ -31,7 +31,7 @@ internal struct Image: Fragment {
         link.plainText()
     }
 
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> [ViewType] {
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType] {
         let url = link.target.url(from: urls)
         return [ViewType.any(viewMaker.image(url))]
     }

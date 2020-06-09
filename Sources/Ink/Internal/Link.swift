@@ -40,16 +40,11 @@ internal struct Link: Fragment {
         text.plainText()
     }
 
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> [ViewType] {
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType] {
         let url = target.url(from: urls)
-        let views = text.view(usingURLs: urls, rawString: rawString, viewMaker: viewMaker, viewModifier: viewModifier)
+        let views = text.view(usingURLs: urls, rawString: rawString, viewMaker: viewMaker, viewInterceptor: viewInterceptor)
         let linked = views.map { (view) -> ViewType in
-            switch view {
-            case .text(let t):
-                return .text(viewModifier.textLink((url, t)))
-            case .any(let a):
-                return .any(viewModifier.anyViewLink((url, a)))
-            }
+            viewInterceptor.link((url, view))
         }
         return linked
     }

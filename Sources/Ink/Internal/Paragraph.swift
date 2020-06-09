@@ -24,7 +24,7 @@ internal struct Paragraph: Fragment {
         text.plainText()
     }
 
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> [ViewType] {
-        return text.view(usingURLs: urls, rawString: rawString, viewMaker: viewMaker, viewModifier: viewModifier)
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType] {
+        return text.view(usingURLs: urls, rawString: rawString, viewMaker: viewMaker, viewInterceptor: viewInterceptor)
     }
 }

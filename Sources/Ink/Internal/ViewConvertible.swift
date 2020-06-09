@@ -8,16 +8,16 @@
 import SwiftUI
 
 protocol ViewConvertible {
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> [ViewType]
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType]
 }
 
 extension ViewConvertible {
-    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewModifier: ViewModifier) -> [ViewType] {
+    func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType] {
         return [.text(Text(rawString))]
     }
 }
 
-enum ViewType {
+public enum ViewType {
     case text(Text)
     case any(AnyView)
 
