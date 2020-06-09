@@ -13,13 +13,21 @@ protocol ViewConvertible {
 
 extension ViewConvertible {
     func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType] {
-        return [.text(Text(rawString))]
+        return [.init(from: AnyView(Text(rawString)))]
     }
 }
 
 public enum ViewType {
     case text(Text)
     case any(AnyView)
+
+    init<Content: View>(from view: Content) {
+        if let text = view as? Text {
+            self = Self.text(text)
+            return
+        }
+        self = Self.any(AnyView(view))
+    }
 
     func any() -> AnyView {
         switch self {
