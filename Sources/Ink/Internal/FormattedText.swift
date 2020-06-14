@@ -126,7 +126,7 @@ private extension FormattedText {
                             break
                         }
 
-                        guard reader.previousCharacter != "\\" && !(sequentialSpaceCount >= 2) else {
+                        guard !reader.isGitHubFlavored && reader.previousCharacter != "\\" && !(sequentialSpaceCount >= 2) else {
                             text.components.append(.linebreak)
                             skipCharacter()
                             continue

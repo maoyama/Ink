@@ -20,19 +20,22 @@ public struct MarkdownParser {
     private var modifiers: ModifierCollection
     private var viewMaker: ViewMaker
     private var viewInterceptor: ViewInterceptor!
+    private var isGitHubFlavored: Bool
     /// Initialize an instance, optionally passing an array
     /// of modifiers used to customize the parsing process.
-    public init(modifiers: [Modifier] = []) {
+    public init(modifiers: [Modifier] = [], isGitHubFlavored: Bool=false) {
         self.modifiers = ModifierCollection(modifiers: modifiers)
         self.viewMaker = ViewMaker(image: { (url) -> AnyView in
             AnyView(Text(url))
         })
+        self.isGitHubFlavored = isGitHubFlavored
     }
 
-    public init(viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) {
+    public init(viewMaker: ViewMaker, viewInterceptor: ViewInterceptor, isGitHubFlavored: Bool=false) {
         self.modifiers = ModifierCollection(modifiers: [])
         self.viewMaker = viewMaker
         self.viewInterceptor = viewInterceptor
+        self.isGitHubFlavored = isGitHubFlavored
     }
 
     /// Add a modifier to this parser, which can be used to
@@ -49,7 +52,7 @@ public struct MarkdownParser {
     }
 
     public func view(from markdown: String) -> some View {
-        var reader = Reader(string: markdown)
+        var reader = Reader(string: markdown, isGitHubFlavored: isGitHubFlavored)
         var fragments = [ParsedFragment]()
         var urlsByName = [String : URL]()
         var titleHeading: Heading?
@@ -113,7 +116,7 @@ public struct MarkdownParser {
     /// both the HTML representation of the given string, and also any
     /// metadata values found within it.
     public func parse(_ markdown: String) -> Markdown {
-        var reader = Reader(string: markdown)
+        var reader = Reader(string: markdown, isGitHubFlavored: isGitHubFlavored)
         var fragments = [ParsedFragment]()
         var urlsByName = [String : URL]()
         var titleHeading: Heading?

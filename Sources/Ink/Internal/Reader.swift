@@ -6,11 +6,13 @@
 
 internal struct Reader {
     private let string: String
+    let isGitHubFlavored: Bool
     private(set) var currentIndex: String.Index
 
-    init(string: String) {
+    init(string: String, isGitHubFlavored: Bool) {
         self.string = string
         self.currentIndex = string.startIndex
+        self.isGitHubFlavored = isGitHubFlavored
     }
 }
 

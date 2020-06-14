@@ -148,6 +148,15 @@ final class TextFormattingTests: XCTestCase {
 
         XCTAssertEqual(html, "<p>Line 1<br>Line 2</p>")
     }
+
+    func testGitHubFlavoredLinebreak() {
+        let html = MarkdownParser(modifiers: [], isGitHubFlavored: true).html(from: """
+            Line 1
+            Line 2
+            """)
+
+        XCTAssertEqual(html, "<p>Line 1<br>Line 2</p>")
+    }
 }
 
 extension TextFormattingTests {
@@ -178,7 +187,8 @@ extension TextFormattingTests {
             ("testMultiLineBlockquote", testMultiLineBlockquote),
             ("testEscapingSymbolsWithBackslash", testEscapingSymbolsWithBackslash),
             ("testDoubleSpacedHardLinebreak", testDoubleSpacedHardLinebreak),
-            ("testEscapedHardLinebreak", testEscapedHardLinebreak)
+            ("testEscapedHardLinebreak", testEscapedHardLinebreak),
+            ("testGitHubFlavoredLinebreak", testGitHubFlavoredLinebreak)
         ]
     }
 }
