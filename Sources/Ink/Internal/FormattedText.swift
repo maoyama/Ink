@@ -55,6 +55,9 @@ internal struct FormattedText: Readable, HTMLConvertible, PlainTextConvertible {
             case .linebreak:
                 return [.text(Text("\n"))]
             case .text(let text):
+                if text.isEmpty {
+                    return []
+                }
                 return [.text(Text(text))]
             case .styleMarker(let marker):
                 return [.text(Text(marker.rawMarkers))]
