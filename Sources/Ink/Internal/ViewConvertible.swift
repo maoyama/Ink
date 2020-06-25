@@ -20,8 +20,22 @@ extension ViewConvertible {
 public enum ViewType {
     case text(Text)
     case any(AnyView)
+    private static var newlineText: Text { Text("\n") }
+    static var newline: ViewType { .text(Text("\n")) }
 
-    init<Content: View>(from view: Content) {
+    var isNewLine: Bool {
+        switch self {
+        case .text(let t):
+            if t == Self.newlineText {
+                return true
+            }
+            return false
+        case .any:
+            return false
+        }
+    }
+
+    public init<Content: View>(from view: Content) {
         if let text = view as? Text {
             self = Self.text(text)
             return

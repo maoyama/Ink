@@ -6,6 +6,7 @@
 
 import XCTest
 import Ink
+import SwiftUI
 
 final class TextFormattingTests: XCTestCase {
     func testParagraph() {
@@ -157,6 +158,44 @@ final class TextFormattingTests: XCTestCase {
 
         XCTAssertEqual(html, "<p>Line 1<br>Line 2</p>")
     }
+
+    func testGitHubFlavoredLinebreakView() {
+        let parser = MarkdownParser(
+            viewInterceptor: ViewInterceptor.init(link: { (link) -> ViewType in
+                switch link.text {
+                case .text(let t):
+                    return .init(from: AnyView(t))
+                case .any(let a):
+                    return .init(from: a)
+                }
+            }), isGitHubFlavored: true)
+        
+        let views = parser
+            .fragmentViews(from: """
+            [link text](http://dev.nodeca.com)
+            [link with title](http://nodeca.github.io/pica/demo/ "title text!") in paragrah.
+            Autoconverted link https://github.com/nodeca/pica (enable linkify to see)
+            """)
+        XCTAssertEqual(views.count, 3)
+        switch views[0] {
+        case .any:
+            XCTAssert(true)
+        default:
+            XCTAssert(false)
+        }
+        switch views[1] {
+        case .any:
+            XCTAssert(true)
+        default:
+            XCTAssert(false)
+        }
+        switch views[2] {
+        case .text:
+            XCTAssert(true)
+        default:
+            XCTAssert(false)
+        }
+    }
 }
 
 extension TextFormattingTests {
@@ -188,7 +227,8 @@ extension TextFormattingTests {
             ("testEscapingSymbolsWithBackslash", testEscapingSymbolsWithBackslash),
             ("testDoubleSpacedHardLinebreak", testDoubleSpacedHardLinebreak),
             ("testEscapedHardLinebreak", testEscapedHardLinebreak),
-            ("testGitHubFlavoredLinebreak", testGitHubFlavoredLinebreak)
+            ("testGitHubFlavoredLinebreak", testGitHubFlavoredLinebreak),
+            ("testGitHubFlavoredLinebreakView", testGitHubFlavoredLinebreakView),
         ]
     }
 }

@@ -50,21 +50,32 @@ internal struct FormattedText: Readable, HTMLConvertible, PlainTextConvertible {
     }
 
     func view(usingURLs urls: NamedURLCollection, rawString: Substring, viewMaker: ViewMaker, viewInterceptor: ViewInterceptor) -> [ViewType] {
-        return Array(components.map { (com) -> [ViewType] in
-            switch com {
-            case .linebreak:
-                return [.text(Text("\n"))]
-            case .text(let text):
-                if text.isEmpty {
-                    return []
+        return Array(
+            components.map { (com) -> [ViewType] in
+                switch com {
+                case .linebreak:
+                    return [.text(Text("\n"))]
+                case .text(let text):
+                    if text.isEmpty {
+                        return []
+                    }
+                    return [.text(Text(text))]
+                case .styleMarker(let marker):
+                    return [.text(Text(marker.rawMarkers))]
+                case .fragment(let fragment, rawString: let rawStr):
+                    return fragment.view(usingURLs: urls, rawString: rawStr, viewMaker: viewMaker, viewInterceptor: viewInterceptor)
                 }
-                return [.text(Text(text))]
-            case .styleMarker(let marker):
-                return [.text(Text(marker.rawMarkers))]
-            case .fragment(let fragment, rawString: let rawStr):
-                return fragment.view(usingURLs: urls, rawString: rawStr, viewMaker: viewMaker, viewInterceptor: viewInterceptor)
             }
-        }.joined())
+            .joined()
+            .reduce(into: [], { (views, view) in
+                if view.isNewLine,
+                    let last = views.last,
+                    case .any = last {
+                    return
+                }
+                views.append(view)
+            })
+        )
     }
 
 

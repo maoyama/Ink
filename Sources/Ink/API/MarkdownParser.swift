@@ -23,16 +23,11 @@ public struct MarkdownParser {
     private var isGitHubFlavored: Bool
     /// Initialize an instance, optionally passing an array
     /// of modifiers used to customize the parsing process.
-    public init(modifiers: [Modifier] = [], isGitHubFlavored: Bool=false) {
+    public init(modifiers: [Modifier] = [],
+                viewMaker: ViewMaker=ViewMaker(image: { AnyView(Text($0))}),
+                viewInterceptor: ViewInterceptor=ViewInterceptor(link: { $0.text }),
+                isGitHubFlavored: Bool=false) {
         self.modifiers = ModifierCollection(modifiers: modifiers)
-        self.viewMaker = ViewMaker(image: { (url) -> AnyView in
-            AnyView(Text(url))
-        })
-        self.isGitHubFlavored = isGitHubFlavored
-    }
-
-    public init(viewMaker: ViewMaker, viewInterceptor: ViewInterceptor, isGitHubFlavored: Bool=false) {
-        self.modifiers = ModifierCollection(modifiers: [])
         self.viewMaker = viewMaker
         self.viewInterceptor = viewInterceptor
         self.isGitHubFlavored = isGitHubFlavored
@@ -51,7 +46,7 @@ public struct MarkdownParser {
         parse(markdown).html
     }
 
-    public func view(from markdown: String) -> some View {
+    public func fragmentViews(from markdown: String) -> [ViewType] {
         var reader = Reader(string: markdown, isGitHubFlavored: isGitHubFlavored)
         var fragments = [ParsedFragment]()
         var urlsByName = [String : URL]()
@@ -98,7 +93,11 @@ public struct MarkdownParser {
         let fragmentViews: [ViewType] = Array(fragments.map { (parsed) -> [ViewType] in
             return parsed.fragment.view(usingURLs: urls, rawString: parsed.rawString, viewMaker: viewMaker, viewInterceptor: viewInterceptor)
             }.joined()).joinText()
+        return fragmentViews
+    }
 
+    public func view(from markdown: String) -> some View {
+        let fragmentViews =  self.fragmentViews(from: markdown)
         let fragmentViewsWithID: [(id: UUID, view: ViewType)] = fragmentViews.map { (view) -> (id: UUID, view: ViewType) in
             let id = UUID()
             return (id: id, view: view)
